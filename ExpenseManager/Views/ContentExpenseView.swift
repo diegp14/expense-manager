@@ -13,11 +13,13 @@ struct ContentExpenseView: View {
     @State private var selectedExpanseType: ExpenseType? = nil
     @State private var showNewExpense: Bool = false
     @State private var searchText: String = ""
-    @State private var date: Date = Date()
+    @State private var startDate: Date = Calendar.current.date(byAdding: .day, value: -6, to: .now) ?? .now
+    @State private var endDate: Date = .now
+    @State private var showDatePicker: Bool = false
     
     var body: some View {
         NavigationStack {
-            VStack{
+            VStack(alignment: .leading, spacing: 10) {
                 HStack {
                     Text("Tipo de Gasto:")
                     Spacer()
@@ -31,20 +33,54 @@ struct ContentExpenseView: View {
                             .tag(expenseType)
                         }
                     }
-                    .tint(.black)
                     .pickerStyle(.menu)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.leading, 10)
+                Button {
+                    showDatePicker =  true
+                } label: {
+                    VStack {
+                        HStack {
+                            Label("", systemImage: "calendar")
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Fecha")
+                                    .font(.callout)
+                                HStack {
+                                    Text(startDate.formatted(date: .abbreviated, time: .omitted))
+                                        .font(.callout)
+                                    Text("-")
+                                    Text(endDate.formatted(date: .abbreviated, time: .omitted))
+                                        .font(.callout)
+                                }
+                            }
+                        }
+                        .padding(.leading, 10)
+                        
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(.foreground.opacity(0.05), in: RoundedRectangle(cornerRadius: 10))
+                }
+                .buttonStyle(.plain)
+                .popover(isPresented: $showDatePicker) {
+                    NavigationStack {
+                        RangeDatePicker(startDate: $startDate, endDate: $endDate)
+                            .presentationCompactAdaptation(.popover)
+                            .frame(width: 350, height: 400)
+                    }
+                    
+                }
             }
             Divider()
-            ExpenseListView(expenseType: selectedExpanseType, searchText: searchText)
+            ExpenseListView(expenseType: selectedExpanseType, searchText: searchText, startDate: startDate, endDate: endDate)
                 .navigationTitle(Text("Gastos"))
                 .toolbar {
                     ToolbarItem(placement: .primaryAction)
                     {
-                        Button("Agregar Gasto"){
+                        Button {
                             showNewExpense.toggle()
+                        } label: {
+                            Label("Agregar Gasto", systemImage: "plus")
                         }
                     }
                 }
@@ -52,6 +88,7 @@ struct ContentExpenseView: View {
         }
         .sheet(isPresented: $showNewExpense){
             AddExpenseView()
+                .presentationDetents([.medium, .large])
         }
     }
 }

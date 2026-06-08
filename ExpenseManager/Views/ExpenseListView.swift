@@ -15,11 +15,19 @@ struct ExpenseListView: View {
     @Query private var expenseItems: [Expense]
     
     let searchText: String
+    var startDate: Date
+    var endDate: Date
     
-    init(expenseType: ExpenseType? = nil, searchText: String = ""){
+    init(expenseType: ExpenseType? = nil, searchText: String = "", startDate: Date, endDate: Date){
         self.searchText = searchText
         self.expenseType = expenseType
-        let predicate = #Predicate<Expense>{ (expenseType == nil || $0.expanseType == expenseType!.rawValue) && (searchText.isEmpty || $0.title.localizedStandardContains(searchText)) }
+        let start = Calendar.current.startOfDay(for: startDate)
+        self.startDate = start
+        let end = Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: endDate) ?? endDate
+        self.endDate = end
+        print("start date: \(start) - end date: \(end)")
+        let predicate = #Predicate<Expense>{
+            (expenseType == nil || $0.expanseType == expenseType!.rawValue) && (searchText.isEmpty || $0.title.localizedStandardContains(searchText)) && ( $0.date >= start && $0.date <= end )  }
         _expenseItems = Query(filter: predicate, sort: \.date, order: .reverse )
        
     }
@@ -27,7 +35,7 @@ struct ExpenseListView: View {
     var body: some View {
         
         if expenseItems.isEmpty {
-            EmptyStateView(hasFilters: !searchText.isEmpty || expenseType != nil)
+            EmptyStateView(hasFilters: !searchText.isEmpty || expenseType != nil || startDate != Calendar.current.startOfDay(for: .now) )
         }else{
             VStack{
                 ExpenseInfoView(expenseCount: expenseItems.count, expenseTotal: expenseItems.reduce(0){ $0 + $1.value })
@@ -38,7 +46,7 @@ struct ExpenseListView: View {
                         Section(header: headerDate(group.date)) {
                             ForEach(group.expense) { expense in
                                 NavigationLink {
-                                    EditExpenseView(expense: expense)
+                                    AddExpenseView(expense: expense)
                                 } label: {
                                     ExpenseRow(expense: expense)
                                 }
@@ -108,18 +116,18 @@ struct ExpenseListView: View {
     }
 
 #Preview {
-    ExpenseListView(expenseType: nil)
+    ExpenseListView(expenseType: nil, startDate: .now, endDate: .now)
         .modelContainer(PreviewContainer.shared.modelContainer)
 }
 
 #Preview("Filter by Food Expense") {
     let expenseType: ExpenseType = .food
         
-    ExpenseListView(expenseType: expenseType)
+    ExpenseListView(expenseType: expenseType, startDate: .now, endDate: .now)
             .modelContainer(PreviewContainer.shared.modelContainer)
     }
 
 
 #Preview("Empty View") {
-    ExpenseListView()
+    ExpenseListView(startDate: .now, endDate: .now)
 }

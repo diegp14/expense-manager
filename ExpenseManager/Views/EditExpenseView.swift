@@ -54,10 +54,6 @@ struct EditExpenseView: View {
                 ValidateTextField(title: "Nombre del gasto", text: $title, errorMessage: errorTitle)
                 ValidateTextField(title: "Monto", text: $amount, errorMessage: errorAmount)
                     .keyboardType(.decimalPad)
-                
-//                    TextField("Monto", text: $amount)
-//                        .keyboardType(.decimalPad)
-        
     
                 Picker("Tipo de Gasto", selection: $type){
                     ForEach(ExpenseType.allCases){ option in

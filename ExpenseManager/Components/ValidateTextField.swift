@@ -26,7 +26,7 @@ struct ValidateTextField: View {
                     .onChange(of: text) { _, _ in onEditingChanged?() }
             } else {
                 TextField(title, text: $text)
-                    .textFieldStyle(.roundedBorder)
+//                    .textFieldStyle(.roundedBorder)
                     .overlay(
                         RoundedRectangle(cornerRadius: 6)
                             .stroke(errorMessage != nil ? Color.red : Color.clear, lineWidth: 1.5)

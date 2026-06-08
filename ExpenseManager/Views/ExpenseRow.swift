@@ -11,6 +11,7 @@ struct ExpenseRow: View {
     let expense: Expense
     var body: some View {
         HStack {
+            let _  = print("date: \(expense.date)")
             ExpenseType(rawValue: expense.expanseType)?.icon
                 .font(.title2)
                 .frame(width: 60)

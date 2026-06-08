@@ -14,19 +14,54 @@ struct AddExpenseView: View {
     private var dismiss
     
     @Environment(\.modelContext) private var modelContext
+    private let validation: AddEditExpenseValidation = .shared
     
     @State private var title: String = ""
-    @State private var amount: Double?
+    @State private var amount: String = ""
     @State private var selectExpenseType: ExpenseType = .food
     @State private var date: Date = Date()
     
+   
+    @State private var stateErrorDesc: InvalidReason? = nil
+    @State private var stateErrorAmount: InvalidReason? = nil
     
+    @FocusState private var focusField: FocusField?
+    
+    
+    var expense: Expense? = nil
+    
+    var messageErrorDesc : String? {
+        stateErrorDesc?.description
+    }
+    
+    var messageErrorAmount: String? {
+        stateErrorAmount?.description
+    }
+    
+    var isEditing: Bool {
+        expense != nil
+    }
     
     var body: some View {
         NavigationStack {
             Form {
-                TextField("Titulo del gasto", text: $title)
-                TextField("Monto", value: $amount, formatter: NumberFormatter())
+                TextField("Descripción*", text: $title)
+                    .textFieldStyle(.bottonMessage(message: messageErrorDesc, type: .error))
+                    .focused($focusField, equals: .title)
+                    .onChange(of: title) { oldValue, newValue in
+                        stateErrorDesc = validation.validationDescription(newValue)
+                    }
+                    .onSubmit {
+                        DispatchQueue.main.async {
+                            focusField = .amount
+                        }
+                    }
+                TextField("Monto*", text: $amount)
+                    .textFieldStyle(.bottonMessage(message: messageErrorAmount, type: .error))
+                    .keyboardType(.numbersAndPunctuation)
+                    .onChange(of: amount) { oldValue, newValue in
+                        stateErrorAmount = validation.validationAmount(String(newValue))
+                    }
                 Picker("Tipo de Gasto", selection: $selectExpenseType){
                     ForEach(ExpenseType.allCases){ option in
                         HStack {
@@ -40,38 +75,76 @@ struct AddExpenseView: View {
                     .environment(\.locale, Locale(identifier: "es_MX"))
                     .environment(\.timeZone, TimeZone(identifier: "America/Mexico_City")!)
             }
-            .navigationTitle("Agregar Gasto")
+            .navigationTitle(isEditing ? "Editar Gasto" : "Agregar Gasto")
+            .navigationBarTitleDisplayMode(.inline)
+            .task {
+                if let expense = expense {
+                    title = expense.title
+                    amount = String(expense.value)
+                    selectExpenseType = ExpenseType(rawValue: expense.expanseType) ?? ExpenseType.food
+                    date = expense.date
+                    
+                }
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    focusField = .title
+                }
+            }
             .toolbar {
                 ToolbarItem(placement: .primaryAction){
                     Button{
-                        let newExpense = Expense(title: title,
-                                                 value: amount ?? 0.0,
-                                                 date: date,
-                                                 expanseType: selectExpenseType)
-                        modelContext.insert(newExpense)
-                        do {
-                            try modelContext.save()
-                        } catch {
-                            print("\(error)")
-                        }
-                        dismiss()
+                     addExpense()
                     } label: {
-                        Text("Guardar")
+                        Label("Guardar", systemImage: "checkmark")
                     }
-                    .disabled(title.isEmpty || amount == nil)
                 }
-                ToolbarItem(placement: .cancellationAction){
-                    Button{
-                        dismiss()
-                    } label: {
-                        Text("Cancelar").foregroundStyle(.red)
+                if !isEditing {
+                    ToolbarItem(placement: .cancellationAction){
+                        Button{
+                            dismiss()
+                        } label: {
+                            Text("Cancelar").foregroundStyle(.red)
+                        }
                     }
                 }
             }
         }
     }
+    
+    private func addExpense() {
+        guard validateFields() else { return }
+        if isEditing {
+            expense?.title = title
+            expense?.value = Double(amount) ?? 0.0
+            expense?.date = date
+            expense?.expanseType = selectExpenseType.rawValue
+        } else {
+            let newExpense = Expense(title: title,
+                                     value: Double(amount) ?? 0.0,
+                                     date: date,
+                                     expanseType: selectExpenseType)
+            modelContext.insert(newExpense)
+        }
+        do {
+            try modelContext.save()
+        } catch {
+            print("Error al guardar el registro\(error)")
+        }
+        dismiss()
+ 
+    }
+    
+    private func validateFields() -> Bool {
+        stateErrorDesc =  validation.validationDescription(title)
+        stateErrorAmount = validation.validationAmount(amount)
+        return stateErrorDesc == nil && stateErrorAmount == nil
+    }
 }
 
 #Preview {
     AddExpenseView()
+}
+
+#Preview("Edit View") {
+    AddExpenseView(expense: Expense.sampleData.first )
 }
