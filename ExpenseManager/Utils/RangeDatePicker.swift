@@ -15,7 +15,7 @@ struct RangeDatePicker: View {
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 0) {
                 Picker("", selection: $picked) {
                     Text(startDate.formatted(date: .abbreviated, time: .omitted))
                         .tag(0)

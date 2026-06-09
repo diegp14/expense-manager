@@ -60,21 +60,7 @@ struct ExpenseListView: View {
                                 }
                             }
                         }
-                        
                     }
-//                    NavigationLink {
-//                        EditExpenseView(expense: expense)
-//                    } label: {
-//                        ExpenseRow(expense: expense)
-//                    }
-//                        .swipeActions {
-//                            Button {
-//                                modelContext.delete(expense)
-//                            } label: {
-//                                Text("Eliminar")
-//                            }
-//                            .tint(.red)
-//                        }
                     }
                 }
             }

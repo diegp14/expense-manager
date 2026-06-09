@@ -26,12 +26,12 @@ struct ExpenseInfoView: View {
                 Text("Total de gastos:")
                     .foregroundColor(.secondary)
                 Spacer()
-                Text("$\(String(format: "%.2f", expenseTotal))")
+                Text(expenseTotal.formatted(.currency(code: "MXN").presentation(.isoCode)))
                     .font(.headline)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(20)
+        .padding(10)
     }
 }
 

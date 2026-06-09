@@ -41,6 +41,7 @@ struct BottonMessageTextFieldStyle: TextFieldStyle {
                     .background(messageType.color, in: .buttonBorder)
                 Text(message)
                     .foregroundColor(messageType.color)
+                    .font(.footnote)
             }
         }
     }
@@ -65,6 +66,7 @@ struct BottonMessageModifier: ViewModifier {
                     .background(type.color, in: .buttonBorder)
                 Text(message)
                     .foregroundColor(type.color)
+                    .font(.footnote)
             }
         }
     }
