@@ -10,13 +10,17 @@ import SwiftUI
 
 struct ContentExpenseView: View {
 
+    @Environment(\.dismiss) private var dismiss
     @State private var selectedExpanseType: ExpenseType? = nil
     @State private var showNewExpense: Bool = false
     @State private var searchText: String = ""
     @State private var startDate: Date =
-        Calendar.current.date(byAdding: .day, value: -6, to: .now) ?? .now
+        Calendar.current.date(byAdding: .day, value: -7, to: .now) ?? .now
     @State private var endDate: Date = .now
     @State private var showDatePicker: Bool = false
+    @State private var showRangeDatePicker: Bool = false
+    @State private var selectedDateOption: DateOption = .oneWeekAgo
+    
 
     var body: some View {
         NavigationStack {
@@ -60,12 +64,10 @@ struct ContentExpenseView: View {
                 }
                 .buttonStyle(.plain)
                 .popover(isPresented: $showDatePicker) {
-                    NavigationStack {
-                        RangeDatePicker(startDate: $startDate, endDate: $endDate)
-                            .presentationCompactAdaptation(.popover)
-                            .frame(width: 350, height: 400)
-                    }
-                    
+                    FilterDateView(startDate: $startDate, endDate: $endDate, showRangeDatePicker: $showRangeDatePicker, selectedDateOption: $selectedDateOption) 
+                        
+                    .presentationCompactAdaptation(.popover)
+                    .frame(width: 350, height: 400)
                 }
             }
             Divider()
