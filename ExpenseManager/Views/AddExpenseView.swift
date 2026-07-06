@@ -19,6 +19,8 @@ struct AddExpenseView: View {
     @State private var title: String = ""
     @State private var amount: String = ""
     @State private var selectExpenseType: ExpenseType = .food
+    @State private var selectPaymentMethod: PaymentMethod = .cash
+    @State private var selectPaymentType: PaymentType = .cash
     @State private var date: Date = Date()
     
    
@@ -40,6 +42,10 @@ struct AddExpenseView: View {
     
     var isEditing: Bool {
         expense != nil
+    }
+    
+    var disabledPaymentMethod: Bool {
+        selectPaymentType == .credit
     }
     
     var body: some View {
@@ -71,6 +77,27 @@ struct AddExpenseView: View {
                         .tag(option)
                     }
                 }
+                
+                Picker("Tipo de Pago", selection: $selectPaymentType) {
+                    ForEach(PaymentType.allCases) { option in
+                        Text(option.name)
+                            .tag(option)
+                    }
+                }
+                .onChange(of: selectPaymentType) { oldValue, newValue in
+                    if newValue ==  .credit {
+                        selectPaymentMethod = .card
+                    }
+                }
+                
+                Picker("Método de Pago", selection: $selectPaymentMethod) {
+                    ForEach(PaymentMethod.allCases) { option in
+                        Text(option.name)
+                            .tag(option)
+                    }
+                }
+                .disabled(disabledPaymentMethod)
+                
                 DatePicker("Fecha", selection: $date, in: ...date,  displayedComponents: .date)
                     .environment(\.locale, Locale(identifier: "es_MX"))
                     .environment(\.timeZone, TimeZone(identifier: "America/Mexico_City")!)
@@ -83,6 +110,8 @@ struct AddExpenseView: View {
                     amount = String(expense.value)
                     selectExpenseType = ExpenseType(rawValue: expense.expanseType) ?? ExpenseType.food
                     date = expense.date
+                    selectPaymentMethod = PaymentMethod(rawValue: expense.paymentMethod) ?? .cash
+                    selectPaymentType = PaymentType(rawValue: expense.paymentType) ?? .cash
                     
                 }
                 
@@ -118,11 +147,16 @@ struct AddExpenseView: View {
             expense?.value = Double(amount) ?? 0.0
             expense?.date = date
             expense?.expanseType = selectExpenseType.rawValue
+            expense?.paymentMethod = selectPaymentMethod.rawValue
+            expense?.paymentType = selectPaymentType.rawValue
         } else {
             let newExpense = Expense(title: title,
                                      value: Double(amount) ?? 0.0,
                                      date: date,
-                                     expanseType: selectExpenseType)
+                                     expanseType: selectExpenseType,
+                                     paymentMethod: selectPaymentMethod,
+                                     paymentType: selectPaymentType
+            )
             modelContext.insert(newExpense)
         }
         do {

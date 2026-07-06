@@ -16,7 +16,7 @@ struct ExpenseRow: View {
                 .font(.title2)
                 .frame(width: 60)
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(expense.title)
                     .font(.body)
                     .fontWeight(.medium)
@@ -31,6 +31,17 @@ struct ExpenseRow: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
+                HStack {
+                    Text("T. de pago: \(expense.paymentMethodWrapper.name)")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                        .foregroundStyle(.secondary)
+                    Text("M. de pago: \(expense.paymentTypeWrapper.name)")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(0)
             }
             Spacer()
             Text("$\(expense.value.formatted(.currency(code: "es_MX")))")
