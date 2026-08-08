@@ -25,7 +25,6 @@ struct ExpenseListView: View {
         self.startDate = start
         let end = Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: endDate) ?? endDate
         self.endDate = end
-        print("start date: \(start) - end date: \(end)")
         let predicate = #Predicate<Expense>{
             (expenseType == nil || $0.expanseType == expenseType!.rawValue) && (searchText.isEmpty || $0.title.localizedStandardContains(searchText)) && ( $0.date >= start && $0.date <= end )  }
         _expenseItems = Query(filter: predicate, sort: \.date, order: .reverse )
@@ -38,7 +37,7 @@ struct ExpenseListView: View {
             EmptyStateView(hasFilters: !searchText.isEmpty || expenseType != nil || startDate != Calendar.current.startOfDay(for: .now) )
         }else{
             VStack{
-                ExpenseInfoView(expenseCount: expenseItems.count, expenseTotal: expenseItems.reduce(0){ $0 + $1.value })
+                ExpenseInfoView(expenseCount: expenseItems.count, expenseTotal: expenseItems.filter( { $0.paymentTypeWrapper == .cash }).reduce(0) { $0 + $1.value })
                     .padding(0)
                 
                 List {
@@ -54,7 +53,7 @@ struct ExpenseListView: View {
                                     Button {
                                         modelContext.delete(expense)
                                     } label: {
-                                        Text("Borrar")
+                                        Image(systemName: "trash")
                                     }
                                     .tint(.red)
                                 }

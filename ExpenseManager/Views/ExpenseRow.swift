@@ -11,7 +11,6 @@ struct ExpenseRow: View {
     let expense: Expense
     var body: some View {
         HStack {
-            let _  = print("date: \(expense.date)")
             ExpenseType(rawValue: expense.expanseType)?.icon
                 .font(.title2)
                 .frame(width: 60)
@@ -32,12 +31,12 @@ struct ExpenseRow: View {
                         .foregroundStyle(.secondary)
                 }
                 HStack {
-                    Text("T. de pago: \(expense.paymentMethodWrapper.name)")
+                    Text(expense.paymentMethodWrapper.name)
                         .font(.caption2)
                         .foregroundStyle(.secondary)
-                    Spacer()
+                    Text("•")
                         .foregroundStyle(.secondary)
-                    Text("M. de pago: \(expense.paymentTypeWrapper.name)")
+                    Text(expense.paymentTypeWrapper.name)
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
@@ -48,7 +47,7 @@ struct ExpenseRow: View {
                 .font(.body)
                 .fontWeight(.semibold)
         }
-        .padding(.vertical, 4)
+        .padding(0)
     }
 }
 

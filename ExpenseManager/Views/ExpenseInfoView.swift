@@ -26,7 +26,7 @@ struct ExpenseInfoView: View {
                 Text("Total de gastos:")
                     .foregroundColor(.secondary)
                 Spacer()
-                Text(expenseTotal.formatted(.currency(code: "MXN").presentation(.isoCode)))
+                Text(expenseTotal.formatted(.currency(code: "MXN")))
                     .font(.headline)
             }
         }

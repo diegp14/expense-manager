@@ -42,13 +42,6 @@ struct RangeDatePicker: View {
             .navigationTitle("Rango de fechas")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Label("Cancelar", systemImage: "xmark")
-                    }
-                }
                 ToolbarItem(placement: .primaryAction) {
                     Button {
                         dismiss()

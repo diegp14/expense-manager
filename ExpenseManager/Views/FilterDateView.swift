@@ -42,6 +42,8 @@ struct FilterDateView: View {
                         Text("Hoy")
                     }
                 }
+                .buttonStyle(.plain)
+                
                 Button {
                     startDate = Calendar.current.date(byAdding: .day, value: -7, to: .now) ?? .now
                     endDate = .now
@@ -54,6 +56,7 @@ struct FilterDateView: View {
                         Text("Una semana atrás")
                     }
                 }
+                .buttonStyle(.plain)
                 
                 Button {
                     let calendar = Calendar.current
@@ -68,6 +71,7 @@ struct FilterDateView: View {
                         Text("Mes actual")
                     }
                 }
+                .buttonStyle(.plain)
                 
                 Button {
                     startDate = Calendar.current.date(byAdding: .month, value: -1, to: .now) ?? .now
@@ -81,6 +85,8 @@ struct FilterDateView: View {
                         Text("Un mes atrás")
                     }
                 }
+                .buttonStyle(.plain)
+                
                 Button {
                     showRangeDatePicker = true
                     selectedDateOption = .custom
@@ -92,9 +98,11 @@ struct FilterDateView: View {
                         Text("Periodo personalizado")
                     }
                 }
+                .buttonStyle(.plain)
                 
             }
-            .navigationTitle("Fecha")
+            .listStyle(.plain)
+            .navigationTitle("Fecha de Creación")
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(isPresented: $showRangeDatePicker, destination: {
                 RangeDatePicker(startDate: $startDate, endDate: $endDate)

@@ -26,6 +26,7 @@ struct AddExpenseView: View {
    
     @State private var stateErrorDesc: InvalidReason? = nil
     @State private var stateErrorAmount: InvalidReason? = nil
+    @State private var showAlert: Bool = false
     
     @FocusState private var focusField: FocusField?
     
@@ -46,6 +47,14 @@ struct AddExpenseView: View {
     
     var disabledPaymentMethod: Bool {
         selectPaymentType == .credit
+    }
+    
+    var hasChanges: Bool {
+        if isEditing {
+            expense?.title != title || expense?.value != Double(amount) ?? 0
+        } else {
+            !title.isEmpty || !amount.isEmpty
+        }
     }
     
     var body: some View {
@@ -104,6 +113,7 @@ struct AddExpenseView: View {
             }
             .navigationTitle(isEditing ? "Editar Gasto" : "Agregar Gasto")
             .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden(hasChanges)
             .task {
                 if let expense = expense {
                     title = expense.title
@@ -120,6 +130,17 @@ struct AddExpenseView: View {
                 }
             }
             .toolbar {
+                if hasChanges {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button {
+                            showAlert = true
+                        } label: {
+                            Image(systemName: "xmark")
+                        }
+
+                    }
+                }
+                
                 ToolbarItem(placement: .primaryAction){
                     Button{
                      addExpense()
@@ -127,16 +148,18 @@ struct AddExpenseView: View {
                         Label("Guardar", systemImage: "checkmark")
                     }
                 }
-                if !isEditing {
-                    ToolbarItem(placement: .cancellationAction){
-                        Button{
-                            dismiss()
-                        } label: {
-                            Text("Cancelar").foregroundStyle(.red)
-                        }
-                    }
-                }
             }
+            .alert("Salir sin guardar", isPresented: $showAlert) {
+                Button("Cerrar", role: .destructive) {
+                   dismiss()
+                }
+                Button("Cancelar", role: .cancel) {
+                    // Triggers automatically to dismiss without action
+                }
+            } message: {
+                Text("Al salir se perderán los datos escritos.")
+            }
+
         }
     }
     

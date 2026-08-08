@@ -68,9 +68,9 @@ struct ContentView: View {
     func aunthenticate() {
         let context = LAContext()
         var error: NSError?
-        if context.canEvaluatePolicy(LAPolicy.deviceOwnerAuthenticationWithBiometrics, error: &error) {
+        if context.canEvaluatePolicy(LAPolicy.deviceOwnerAuthentication, error: &error) {
             let reason = "We need to unlock your data"
-            context.evaluatePolicy(LAPolicy.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, error in
+            context.evaluatePolicy(LAPolicy.deviceOwnerAuthentication, localizedReason: reason) { success, error in
                 if success {
                     isUnlocked = true
                 }else {
