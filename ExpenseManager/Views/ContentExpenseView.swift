@@ -12,6 +12,7 @@ struct ContentExpenseView: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var selectedExpanseType: ExpenseType? = nil
+    @State private var paymentType: PaymentType? = nil
     @State private var showNewExpense: Bool = false
     @State private var searchText: String = ""
     @State private var startDate: Date =
@@ -31,7 +32,8 @@ struct ContentExpenseView: View {
                 expenseType: selectedExpanseType,
                 searchText: searchText,
                 startDate: startDate,
-                endDate: endDate
+                endDate: endDate,
+                paymentType: paymentType
             )
             .navigationTitle("Mis Gastos")
             .navigationBarTitleDisplayMode(.inline)
@@ -41,7 +43,7 @@ struct ContentExpenseView: View {
             .searchable(
                 text: $searchText,
                 placement: .navigationBarDrawer(displayMode: .always),
-                prompt: "Buscar descripción"
+                prompt: "Buscar por descripción"
             )
         }
 
@@ -108,22 +110,35 @@ struct ContentExpenseView: View {
     var toolbarContent: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Menu {
-                Picker("Tipo de gasto", selection: $selectedExpanseType)
-                {
-                    Text("Todos").tag(nil as ExpenseType?)
-                    ForEach(ExpenseType.allCases) { expenseType in
-                        HStack {
-                            expenseType.icon
-                            Text(expenseType.title)
+
+                Menu("Categoria") {
+                    Picker("Tipo de gasto", selection: $selectedExpanseType)
+                    {
+                        Text("Todos").tag(nil as ExpenseType?)
+                        ForEach(ExpenseType.allCases) { expenseType in
+                            HStack {
+                                expenseType.icon
+                                Text(expenseType.title)
+                            }
+                            .tag(expenseType)
                         }
-                        .tag(expenseType)
                     }
+                }
+                
+                Menu("Pago") {
+                    Picker("", selection: $paymentType) {
+                        Text("Todos").tag(nil as PaymentType?)
+                        ForEach(PaymentType.allCases) { type in
+                            Text(type.name).tag(type)
+                        }
+                    }
+                    .labelsHidden()
                 }
 
             } label: {
                 Image(systemName: "slider.horizontal.3")
                     .overlay(alignment: .topTrailing) {
-                        if selectedExpanseType != nil {
+                        if selectedExpanseType != nil || paymentType != nil {
                             Group {
                                 Text("1")
                                     .font(.caption)

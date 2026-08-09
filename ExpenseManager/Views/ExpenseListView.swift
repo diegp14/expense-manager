@@ -17,16 +17,18 @@ struct ExpenseListView: View {
     let searchText: String
     var startDate: Date
     var endDate: Date
+    var paymentType: PaymentType?
     
-    init(expenseType: ExpenseType? = nil, searchText: String = "", startDate: Date, endDate: Date){
+    init(expenseType: ExpenseType? = nil, searchText: String = "", startDate: Date, endDate: Date, paymentType: PaymentType?){
         self.searchText = searchText
         self.expenseType = expenseType
         let start = Calendar.current.startOfDay(for: startDate)
         self.startDate = start
         let end = Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: endDate) ?? endDate
         self.endDate = end
+        self.paymentType = paymentType
         let predicate = #Predicate<Expense>{
-            (expenseType == nil || $0.expanseType == expenseType!.rawValue) && (searchText.isEmpty || $0.title.localizedStandardContains(searchText)) && ( $0.date >= start && $0.date <= end )  }
+            (expenseType == nil || $0.expanseType == expenseType!.rawValue) && (searchText.isEmpty || $0.title.localizedStandardContains(searchText)) && ( $0.date >= start && $0.date <= end ) && (paymentType == nil || $0.paymentType == paymentType!.rawValue)  }
         _expenseItems = Query(filter: predicate, sort: \.date, order: .reverse )
        
     }
@@ -101,18 +103,18 @@ struct ExpenseListView: View {
     }
 
 #Preview {
-    ExpenseListView(expenseType: nil, startDate: .now, endDate: .now)
+    ExpenseListView(expenseType: nil, startDate: .now, endDate: .now, paymentType: nil)
         .modelContainer(PreviewContainer.shared.modelContainer)
 }
 
 #Preview("Filter by Food Expense") {
     let expenseType: ExpenseType = .food
         
-    ExpenseListView(expenseType: expenseType, startDate: .now, endDate: .now)
+    ExpenseListView(expenseType: expenseType, startDate: .now, endDate: .now, paymentType: nil)
             .modelContainer(PreviewContainer.shared.modelContainer)
     }
 
 
 #Preview("Empty View") {
-    ExpenseListView(startDate: .now, endDate: .now)
+    ExpenseListView(startDate: .now, endDate: .now, paymentType: nil)
 }
